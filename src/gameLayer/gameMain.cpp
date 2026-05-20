@@ -3,6 +3,7 @@
 #include <asserts.h>
 #include<assetManager.h>
 #include <gameMap.h>
+#include <helpers.h>
 
 struct GameData 
 {
@@ -18,10 +19,10 @@ bool initGame()
 
 	gameData.gameMap.create(30, 10);
 	gameData.gameMap.getBlocUnsafe(0, 0).type = Block::dirt;
-	gameData.gameMap.getBlocUnsafe(1, 1).type = Block::dirt;
-	gameData.gameMap.getBlocUnsafe(2, 2).type = Block::dirt;
-	gameData.gameMap.getBlocUnsafe(3, 3).type = Block::dirt;
-	gameData.gameMap.getBlocUnsafe(4, 4).type = Block::dirt;
+	gameData.gameMap.getBlocUnsafe(1, 1).type = Block::grass;
+	gameData.gameMap.getBlocUnsafe(2, 2).type = Block::goldBlock;
+	gameData.gameMap.getBlocUnsafe(3, 3).type = Block::glass;
+	gameData.gameMap.getBlocUnsafe(4, 4).type = Block::platform;
 
 	gameData.camera.target = { 0, 0 }; // World-space center of view
 	gameData.camera.rotation = 0.0f;
@@ -55,16 +56,14 @@ bool updateGame()
 
 			if (b.type != Block::air)
 			{
-				float size = 1; 
-				float posX = x * size;
-				float posY = y * size;
-
-				DrawTexturePro(assetManager.dirt, { 0, 0, (float)assetManager.dirt.width, (float)assetManager.dirt.height },
-					{ posX, posY, size, size }, // dest 
-					{0, 0}, // origin
-					0.0f, // rotation
-					WHITE // tint
-				); 
+				DrawTexturePro(
+					assetManager.textures,
+					getTextureAtlas(b.type, 0, 32, 32), // Source
+					{ (float)x, (float)y, 1, 1 }, //dest
+					{ 0, 0 }, // Origin (Top-left corner)
+					0.0f, // rotation 
+					WHITE
+					); 
 			}
 		}
 
