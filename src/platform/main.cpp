@@ -4,10 +4,19 @@
 #include <imgui.h>
 #include <rlImGui.h>
 
-int main()
+#include "gameMain.h"
+
+int main(void)
 {
+
+#if PRODUCTION_BUILD == 1
+	SetTraceLogLevel(LOG_NONE); // No log output to the console by raylib
+#endif
+
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(800, 450, "Window Name");
+	SetExitKey(KEY_NULL); // Disable ESC from closing window
+	SetTargetFPS(240);
 
 	rlImGuiSetup(true);
 
@@ -21,10 +30,16 @@ int main()
 	//ImGui::StyleColorsClassic();
 #pragma endregion
 
+
+	if (!initGame())
+	{
+		return 0;
+	}
+
 	while (!WindowShouldClose())
 	{
 		BeginDrawing();
-		ClearBackground(RAYWHITE);
+		ClearBackground(BLACK);
 
 #pragma region imgui
 		rlImGuiBegin();
@@ -36,37 +51,21 @@ int main()
 		ImGui::PopStyleColor(2);
 #pragma endregion
 
-		DrawText("Congrats! You created your first window!", 190, 200, 20, RED);
-
-#pragma region imgui
-		ImGui::Begin("Test");
-		
-		ImGui::Text("Hello");
-
-		if (ImGui::Button("Button"))
+		if (!updateGame())
 		{
-			std::cout << "Pressed\n";
+			CloseWindow();
 		}
-		ImGui::SameLine();
-
-		ImGui::PushID(2);
-		if (ImGui::Button("Button"))
-		{
-			std::cout << "Second Button\n";
-		}
-		ImGui::PopID();
-
-		ImGui::End();
 
 		rlImGuiEnd();
-#pragma endregion
 
 		EndDrawing();
 	}
 
-	rlImGuiShutdown();
-
 	CloseWindow();
+
+	closeGame();
+
+	rlImGuiShutdown();
 
 	return 0;
 }
