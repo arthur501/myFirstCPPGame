@@ -4,6 +4,7 @@
 #include<assetManager.h>
 #include <gameMap.h>
 #include <helpers.h>
+#include <raymath.h>
 
 struct GameData 
 {
@@ -17,7 +18,14 @@ bool initGame()
 {
 	assetManager.loadAll();
 
-	gameData.gameMap.create(30, 10);
+	gameData.gameMap.create(700, 500);
+
+	for (int i = 0; i < 700; i++) 
+		for (int j = 0; j < 500; j++)
+		{
+			gameData.gameMap.getBlocUnsafe(i, j).type = Block::stone;
+		}
+
 	gameData.gameMap.getBlocUnsafe(0, 0).type = Block::dirt;
 	gameData.gameMap.getBlocUnsafe(1, 1).type = Block::grass;
 	gameData.gameMap.getBlocUnsafe(2, 2).type = Block::goldBlock;
@@ -74,8 +82,22 @@ bool updateGame()
 
 	BeginMode2D(gameData.camera);
 
-	for (int y = 0; y < gameData.gameMap.h; y++)
-		for (int x = 0; x < gameData.gameMap.w; x++)
+	Vector2 topLeftView = GetScreenToWorld2D({ 0, 0 }, gameData.camera);
+	Vector2 bottomRightView = GetScreenToWorld2D({ (float)GetScreenWidth(), (float)GetScreenHeight() }, gameData.camera);
+
+	int startXView = (int)floorf(topLeftView.x - 1);
+	int endXView = (int)ceilf(bottomRightView.x + 1);
+	int startYView = (int)floorf(topLeftView.y - 1);
+	int endYView = (int)ceilf(bottomRightView.y + 1);
+
+	startXView = Clamp(startXView, 0, gameData.gameMap.w - 1);
+	endXView = Clamp(endXView, 0, gameData.gameMap.w - 1);
+
+	startYView = Clamp(startYView, 0, gameData.gameMap.h - 1);
+	endYView = Clamp(endYView, 0, gameData.gameMap.h- 1);
+
+	for (int y = startYView; y <= endYView; y++)
+		for (int x = startXView; x <= endXView; x++)
 		{
 			auto& b = gameData.gameMap.getBlocUnsafe(x, y);
 
@@ -102,6 +124,8 @@ bool updateGame()
 	);
 
 	EndMode2D();
+
+	DrawFPS(10, 10);
 
 	return true;
 }
