@@ -5,6 +5,8 @@
 #include <gameMap.h>
 #include <helpers.h>
 #include <raymath.h>
+#include <worldGenerator.h>
+#include <imgui.h>
 
 struct GameData 
 {
@@ -18,19 +20,7 @@ bool initGame()
 {
 	assetManager.loadAll();
 
-	gameData.gameMap.create(700, 500);
-
-	for (int i = 0; i < 700; i++) 
-		for (int j = 0; j < 500; j++)
-		{
-			gameData.gameMap.getBlocUnsafe(i, j).type = Block::stone;
-		}
-
-	gameData.gameMap.getBlocUnsafe(0, 0).type = Block::dirt;
-	gameData.gameMap.getBlocUnsafe(1, 1).type = Block::grass;
-	gameData.gameMap.getBlocUnsafe(2, 2).type = Block::goldBlock;
-	gameData.gameMap.getBlocUnsafe(3, 3).type = Block::glass;
-	gameData.gameMap.getBlocUnsafe(4, 4).type = Block::platform;
+	generateWorld(gameData.gameMap);
 
 	gameData.camera.target = { 0, 0 }; // World-space center of view
 	gameData.camera.rotation = 0.0f;
@@ -49,6 +39,7 @@ bool updateGame()
 	ClearBackground({ 75, 75, 150, 255 });
 
 #pragma region camera movement
+	static float CAMERA_SPEED = 10; 
 	if (IsKeyDown(KEY_LEFT)) gameData.camera.target.x -= 7.f * deltaTime;
 	if (IsKeyDown(KEY_RIGHT)) gameData.camera.target.x += 7.f * deltaTime;
 	if (IsKeyDown(KEY_UP)) gameData.camera.target.y -= 7.f * deltaTime;
@@ -124,6 +115,13 @@ bool updateGame()
 	);
 
 	EndMode2D();
+
+	ImGui::Begin("Game Controll");
+
+	ImGui::SliderFloat("Camera zoom: ", &gameData.camera.zoom, 10, 150);
+	ImGui::SliderFloat("Camera Speed: ", &CAMERA_SPEED, 5, 30);
+
+	ImGui::End();
 
 	DrawFPS(10, 10);
 

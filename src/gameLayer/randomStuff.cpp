@@ -2,13 +2,13 @@
 
 float getRandomFloat(std::ranlux24_base& rng, float min, float max)
 {
-	std::uniform_int_distribution<float> dist(min, max);
+	std::uniform_real_distribution<float> dist(min, max);
 	return dist(rng);
 }
 
 int getRandomInt(std::ranlux24_base& rng, float min, float max)
 {
-	std::uniform_int_distribution<float> dist(min, max);
+	std::uniform_real_distribution<float> dist(min, max);
 	return dist(rng);
 }
 
