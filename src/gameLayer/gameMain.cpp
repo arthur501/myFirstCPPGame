@@ -119,7 +119,7 @@ bool updateGame()
 	ImGui::Begin("Game Controll");
 
 	ImGui::SliderFloat("Camera zoom: ", &gameData.camera.zoom, 10, 150);
-	ImGui::SliderFloat("Camera Speed: ", &CAMERA_SPEED, 5, 30);
+	ImGui::SliderFloat("Camera Speed: ", &CAMERA_SPEED, 5, 50);
 
 	ImGui::End();
 
