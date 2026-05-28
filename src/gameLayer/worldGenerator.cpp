@@ -1,6 +1,6 @@
 #include "worldGenerator.h"
 #include "randomStuff.h"
-
+#include <FastNoiseSIMD.h>
 
 
 void generateWorld(GameMap& gameMap, int seed)
@@ -10,77 +10,46 @@ void generateWorld(GameMap& gameMap, int seed)
 
 	gameMap.create(w, h);
 
-	std::ranlux24_base rng(seed);
 
-	int keepDirectionTimeDirt = getRandomInt(rng, 5, 40);
-	int directionDirt = getRandomInt(rng, -2, 2);
+	std::ranlux24_base rng(seed++);
+
+
+	std::unique_ptr<FastNoiseSIMD> dirtNoiseGenrator(FastNoiseSIMD::NewFastNoiseSIMD());
+	dirtNoiseGenrator->SetSeed(seed++);
+
+	dirtNoiseGenrator->SetFractalType(FastNoiseSIMD::FractalType::FBM);
+	dirtNoiseGenrator->SetFractalOctaves(6);
+	dirtNoiseGenrator->SetFractalGain(0.4f); // lower gain = sharper
+	dirtNoiseGenrator->SetFrequency(0.01f);
+
+
+	float* dirtNoise = FastNoiseSIMD::GetEmptySet(w);
+
+	dirtNoiseGenrator->FillNoiseSet(dirtNoise, 0, 0, 0, w, 1, 1);
+
+	//convert from [-1 1] to [0 1]
+
+	for (int i = 0; i < w; i++)
+	{
+		dirtNoise[i] = (dirtNoise[i] + 1) / 2;
+	}
+
+	int dirtOffsetStart = -5;
+	int dirtOffsetEnd = 35;
+
 
 	int keepDirectionTimeStone = getRandomInt(rng, 5, 40);
 	int directionStone = getRandomInt(rng, -2, 2);
 
-	int dirtHeight = 70;
+
 	int stoneHeight = 90;
 
 	for (int x = 0; x < w; x++)
 	{
 
-		keepDirectionTimeDirt--;
-		if (keepDirectionTimeDirt <= 0)
-		{
-			keepDirectionTimeDirt = getRandomInt(rng, 5, 40);
-			directionDirt = getRandomInt(rng, -2, 2);
-		}
+#pragma region stone height
 
-		if (directionDirt == -1)
-		{
-			if (getRandomChance(rng, 0.25))
-			{
-				dirtHeight--;
-			}
-		}
-		else if (directionDirt == -2)
-		{
-			if (getRandomChance(rng, 0.25))
-			{
-				dirtHeight--;
-			}
 
-			if (getRandomChance(rng, 0.25))
-			{
-				dirtHeight--;
-			}
-		}
-		else if (directionDirt == 1)
-		{
-			if (getRandomChance(rng, 0.25))
-			{
-				dirtHeight++;
-			}
-		}
-		else if (directionDirt == 2)
-		{
-			if (getRandomChance(rng, 0.25))
-			{
-				dirtHeight++;
-			}
-
-			if (getRandomChance(rng, 0.25))
-			{
-				dirtHeight++;
-			}
-		}
-
-		if (dirtHeight < 50)
-		{
-			dirtHeight = 50;
-		}
-
-		if (dirtHeight > 90)
-		{
-			dirtHeight = 90;
-		}
-
-		//same code for stone
 		keepDirectionTimeStone--;
 		if (keepDirectionTimeStone <= 0)
 		{
@@ -137,7 +106,11 @@ void generateWorld(GameMap& gameMap, int seed)
 			stoneHeight = 120;
 		}
 
+#pragma endregion
 
+
+		int dirtHeight = dirtOffsetStart + (dirtOffsetEnd - dirtOffsetStart) * dirtNoise[x];
+		dirtHeight = stoneHeight - dirtHeight;
 
 		for (int y = 0; y < h; y++)
 		{
@@ -153,7 +126,7 @@ void generateWorld(GameMap& gameMap, int seed)
 				b.type = Block::grassBlock;
 			}
 
-			if (y > stoneHeight)
+			if (y >= stoneHeight)
 			{
 				b.type = Block::stone;
 			}
@@ -169,5 +142,7 @@ void generateWorld(GameMap& gameMap, int seed)
 
 
 
+
+	FastNoiseSIMD::FreeNoiseSet(dirtNoise);
 
 }

@@ -22,7 +22,7 @@ bool initGame()
 
 	generateWorld(gameData.gameMap);
 
-	gameData.camera.target = { 0, 0 }; // World-space center of view
+	gameData.camera.target = { 20, 120 }; // World-space center of view
 	gameData.camera.rotation = 0.0f;
 	gameData.camera.zoom = 100.0f;
 
@@ -34,16 +34,16 @@ bool updateGame()
 	float deltaTime = GetFrameTime();
 	if (deltaTime > 1.f / 5) { deltaTime = 1 / 5.f; }
 
-	gameData.camera.offset = { GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f };
+	gameData.camera.offset = { GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f };	
 
 	ClearBackground({ 75, 75, 150, 255 });
 
 #pragma region camera movement
 	static float CAMERA_SPEED = 10; 
-	if (IsKeyDown(KEY_LEFT)) gameData.camera.target.x -= 7.f * deltaTime;
-	if (IsKeyDown(KEY_RIGHT)) gameData.camera.target.x += 7.f * deltaTime;
-	if (IsKeyDown(KEY_UP)) gameData.camera.target.y -= 7.f * deltaTime;
-	if (IsKeyDown(KEY_DOWN)) gameData.camera.target.y += 7.f * deltaTime;
+	if (IsKeyDown(KEY_LEFT)) gameData.camera.target.x -= CAMERA_SPEED * deltaTime;
+	if (IsKeyDown(KEY_RIGHT)) gameData.camera.target.x += CAMERA_SPEED * deltaTime;
+	if (IsKeyDown(KEY_UP)) gameData.camera.target.y -= CAMERA_SPEED * deltaTime;
+	if (IsKeyDown(KEY_DOWN)) gameData.camera.target.y += CAMERA_SPEED * deltaTime;
 #pragma endregion
 
 	Vector2 worldPos = GetScreenToWorld2D(GetMousePosition(), gameData.camera);
